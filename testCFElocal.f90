@@ -12,5 +12,5 @@ PROGRAM testCFElocal
     sigmaMW= 7.e3 !velocity dispersion
     csMW=0.2e3 !sound speed
     cfe=f_cfelocal(rhoMW,sigmaMW,csMW) !CFE
-    PRINT*,cfe(1)*100
+    PRINT*,cfe(1)*100.
 END PROGRAM

@@ -2,13 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <gsl/gsl_randist.h>
-
-#define GRAVITY 6.6738e-8
-#define SOLAR_MASS 1.989e33
-#define CLIGHT_REAL 2.99792458e10
-#define STEFAN_BOLTZMANN 5.67374e-5
-#define PARSEC 3.085678e18
-#define SEC_PER_MEGAYEAR 3.15576e13
+#include "proto.h"
 
 static double f_xcrit(double mach);
 static double f_sigrho(double mach);
@@ -27,7 +21,7 @@ static double surfGMC = 100.*SOLAR_MASS/(PARSEC*PARSEC); // giant molecular clou
 static double ecore = 0.5;                               // maximum (protostellar core) star formation efficiency
 static double beta0 = 1e10;                              // if turbulent-to-magnetic pressure ratio is not specified,
                                                          // set to turbulent-only
-static int radfb = 0;                                    // SN radiative feedback mode - NOTE: set to 0 for supernovae only,
+static int radfb = 1;                                    // SN radiative feedback mode - NOTE: set to 0 for supernovae only,
                                                          // to 1 for radiative only, and to 2 for both
 static int sflaw = 1;                                    // star formation law - NOTE: set to 0 for Elmegreen(2002) and 
                                                          // to 1 for Krumholz & McKee (2005)
@@ -169,20 +163,20 @@ static double f_xcce(double sigmaloc, double surfGMC, double tview){
   double xmin = 1e-4;
   double xmax = 1e8;
   double accuracy = 1e-6;
-  double xarr[1000], xarr2[1000];
+  double xarr[100], xarr2[100];
   
   xfit = xmin*xmin/xmax;
   xfit0 = xfit*accuracy;
   
   while(fabs(log10(xfit/xfit0)) > accuracy){
     xfit0 = xfit;
-    for(int ix = 0; ix < 1000; ix++){
-      xarr[ix] = pow(10. ,(ix/1000.)*log10(xmax/xmin) + log10(xmin));
+    for(int ix = 0; ix < 100; ix++){
+      xarr[ix] = pow(10. ,(ix/100.)*log10(xmax/xmin) + log10(xmin));
       phiad = f_phiad(xarr[ix]);
       xarr2[ix] = 87.5*sqrt(M_PI)*0.7*1.5*GRAVITY*2.8*surfGMC*phiad*tview/sigmaloc;
     }
     diff = 1e30;
-    for(int ix = 0; ix < 1000; ix++){
+    for(int ix = 0; ix < 100; ix++){
       diffx = fabs(xarr2[ix] - xarr[ix]);
       if(diffx < diff && ix > 0){
         diff = diffx;
@@ -225,7 +219,7 @@ static double f_integrate(double xsurv, double mulnx, double sig, double rholoc,
 
   f1 = 0.;
   for(int ix = 0; ix < 1000; ix++){
-    xg = xmin * pow(xmax / xmin, (ix - 0.5) / 1000.); // overdensity
+    xg = xmin * pow(xmax / xmin, (ix + 0.5) / 1000.); // overdensity
     dx = xg * (pow(xmax / xmin, 1. / (2. * 1000.)) - pow(xmax / xmin, -1. / (2. * 1000.))); // step size
     fstar = f_fstar(rholoc,sigmaloc,csloc,surfdens,xg, tview); // local SFE
     bound = fstar / ecore; // local bound fraction
@@ -239,7 +233,7 @@ static double f_integrate(double xsurv, double mulnx, double sig, double rholoc,
 
   f2 = 0.;
   for(int ix = 0; ix < 1000; ix++){
-    xg = xmin * pow(xmax / xmin, (ix - 0.5) / 1000.); // overdensity
+    xg = xmin * pow(xmax / xmin, (ix + 0.5) / 1000.); // overdensity
     dx = xg * (pow(xmax / xmin, 1. / (2. * 1000.)) - pow(xmax / xmin, -1. / (2. * 1000.))); // step size
     fstar = f_fstar(rholoc,sigmaloc,csloc,surfdens,xg, tview); // local SFE 
     bound = fstar / ecore; // local bound fraction
