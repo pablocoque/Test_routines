@@ -279,6 +279,6 @@ double cfe_local(double rholoc, double sigmaloc, double csloc, double tview){
   xcce = f_xcce(sigmaloc, surfGMC, tview); // x_cce
   fcce = f_integrate(xcce, mulnx, sigrho, rholoc, sigmaloc, csloc, surfdens, tview, 1); // bound part after cruel cradle effect
   
-  return fbound*fcce; /* CFE local after Cruddle Craddle effect*/
+  return fcce; /* CFE local after Cruddle Craddle effect*/
 }
 /* End of functions to obtain CFE based on Kruijsen 2012 model */
